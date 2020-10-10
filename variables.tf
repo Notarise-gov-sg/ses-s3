@@ -12,16 +12,11 @@ variable "private_zone" {
   default = false
 }
 
-variable "region" {
+variable "ses_region" {
   type = string
 }
 
 variable "ses_bucket" {
-  type = string
-}
-
-variable "ses_bucket_prefix" {
-  description = "Prefix folder path for all emails receive for this receipt rule"
   type = string
 }
 
@@ -73,11 +68,6 @@ variable "receive_s3_prefix" {
 
 variable "route53_zone_id" {
   description = "Route53 host zone ID to enable SES."
-  type        = string
-}
-
-variable "ses_rule_set" {
-  description = "Name of the SES rule set to associate rules with."
   type        = string
 }
 

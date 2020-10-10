@@ -4,7 +4,7 @@ data "aws_caller_identity" "current" {}
 
 provider "aws" {
   alias = "ses_region"
-  region = var.region
+  region = var.ses_region
 }
 #
 # SES Ruleset
@@ -14,7 +14,7 @@ provider "aws" {
 # be active at any point in time. So this will live in the app-global state file.
 locals {
   ses_bucket_prefix       = "ses"
-  email_domain             = "email.${var.route53_domain_name}"
+  email_domain             = "mail.${var.route53_domain_name}"
 }
 
 resource "aws_ses_receipt_rule_set" "main" {
@@ -144,15 +144,6 @@ data "aws_route53_zone" "selected" {
   private_zone = var.private_zone
 }
 
-resource "aws_route53_record" "temp_spf" {
-  count   = var.enable_spf_record ? 0 : 1
-  zone_id = data.aws_route53_zone.selected.zone_id
-  name    = var.route53_domain_name
-  type    = "TXT"
-  ttl     = "300"
-  records = ["v=spf1 include:amazonses.com ~all"]
-}
-
 #
 # SES Domain
 #
@@ -164,6 +155,8 @@ module "ses_domain" {
   source  = "trussworks/ses-domain/aws"
   version = "2.0.5"
 
+  enable_incoming_email = var.enable_incoming_email
+
   domain_name     = var.route53_domain_name
   route53_zone_id = data.aws_route53_zone.selected.zone_id
   enable_verification = var.enable_verification
@@ -171,10 +164,13 @@ module "ses_domain" {
   from_addresses   = var.from_addresses
   mail_from_domain = local.email_domain
 
+  dmarc_p = var.dmarc_p
   dmarc_rua = var.dmarc_rua
   receive_s3_bucket = aws_s3_bucket.bucket.id
-  receive_s3_prefix = var.ses_bucket_prefix
+  receive_s3_prefix = varreceive_s3_prefix
   enable_spf_record = var.enable_spf_record
+
+  extra_ses_records = var.extra_ses_records
 
   ses_rule_set = aws_ses_receipt_rule_set.main.rule_set_name
 }
