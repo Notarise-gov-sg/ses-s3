@@ -150,7 +150,7 @@ module "ses_domain" {
   dmarc_p = var.dmarc_p
   dmarc_rua = var.dmarc_rua
   receive_s3_bucket = aws_s3_bucket.bucket.id
-  receive_s3_prefix = varreceive_s3_prefix
+  receive_s3_prefix = var.receive_s3_prefix
   enable_spf_record = var.enable_spf_record
 
   extra_ses_records = var.extra_ses_records
