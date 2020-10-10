@@ -13,7 +13,6 @@ provider "aws" {
 # SES only allows one (just like Highlander and Lord of the Rings) rule set to
 # be active at any point in time. So this will live in the app-global state file.
 locals {
-  ses_bucket_prefix       = "ses"
   email_domain             = "mail.${var.route53_domain_name}"
 }
 
@@ -46,7 +45,7 @@ data "aws_iam_policy_document" "s3_allow_ses_puts" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.ses_bucket}/${local.ses_bucket_prefix}/*",
+      "arn:aws:s3:::${var.ses_bucket}/*",
     ]
 
     condition {
