@@ -133,7 +133,7 @@ data "aws_route53_zone" "selected" {
 
 module "ses_domain" {
   providers = {
-    aws = "aws.ses_region"
+    aws = aws.ses_region
   }
   source  = "trussworks/ses-domain/aws"
   version = "2.0.5"
