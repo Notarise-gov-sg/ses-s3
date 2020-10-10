@@ -68,7 +68,6 @@ resource "aws_s3_bucket" "bucket" {
     }
   }
 
-  region        = var.ses_bucket_region
   acl           = "private"
   force_destroy = true
   policy        = data.aws_iam_policy_document.s3_allow_ses_puts.json
