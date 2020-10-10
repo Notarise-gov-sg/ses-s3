@@ -20,7 +20,7 @@ variable "ses_bucket" {
   type = string
 }
 
-variable "ses_bucket_storage_region" {
+variable "ses_bucket_region" {
   type = string
   description = "S3 bucket region where emails are stored"
 }
