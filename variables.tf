@@ -49,11 +49,6 @@ variable "from_addresses" {
   type        = list(string)
 }
 
-variable "mail_from_domain" {
-  description = " Subdomain (of the route53 zone) which is to be used as MAIL FROM address"
-  type        = string
-}
-
 variable "receive_s3_bucket" {
   description = "Name of the S3 bucket to store received emails (required if enable_incoming_email is true)."
   type        = string
@@ -64,11 +59,6 @@ variable "receive_s3_prefix" {
   description = "The key prefix of the S3 bucket to store received emails (required if enable_incoming_email is true)."
   type        = string
   default     = ""
-}
-
-variable "route53_zone_id" {
-  description = "Route53 host zone ID to enable SES."
-  type        = string
 }
 
 variable "enable_incoming_email" {
