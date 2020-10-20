@@ -17,7 +17,8 @@ variable "ses_region" {
 }
 
 variable "ses_bucket" {
-  type = string
+  type    = string
+  default = "my_bucket"
 }
 
 # Variables for module
@@ -72,4 +73,20 @@ variable "extra_ses_records" {
   description = "Extra records to add to the _amazonses TXT record."
   type        = list(string)
   default     = []
+}
+
+variable "rule_set_name" {
+  type        = string
+  description = "Name of rule set to assign for this ses domain"
+  default     = "main_rule_set"
+}
+
+variable "mail_from_domain" {
+  description = "Subdomain (of the route53 zone) which is to be used as MAIL FROM address"
+  type        = string
+}
+
+variable "email_domain_name" {
+  description = "Domain identity address for mx records etc e.g mail.example.com"
+  type        = string
 }

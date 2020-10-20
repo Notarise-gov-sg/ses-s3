@@ -3,27 +3,23 @@ data "aws_caller_identity" "current" {}
 // data "aws_partition" "current" {}
 
 provider "aws" {
-  alias = "ses_region"
+  alias  = "ses_region"
   region = var.ses_region
 }
 #
 # SES Ruleset
 #
 
-# SES only allows one (just like Highlander and Lord of the Rings) rule set to
-# be active at any point in time. So this will live in the app-global state file.
-locals {
-  email_domain             = "mail.${var.route53_domain_name}"
-}
-
 resource "aws_ses_receipt_rule_set" "main" {
-  provider = aws.ses_region
-  rule_set_name = var.ses_bucket
+  count  = var.enable_incoming_email ? 1 : 0
+  provider      = aws.ses_region
+  rule_set_name = var.rule_set_name
 }
 
 resource "aws_ses_active_receipt_rule_set" "main" {
-  provider = aws.ses_region
-  rule_set_name = aws_ses_receipt_rule_set.main.rule_set_name
+  count  = var.enable_incoming_email ? 1 : 0
+  provider      = aws.ses_region
+  rule_set_name = aws_ses_receipt_rule_set.main[0].rule_set_name
 }
 
 #
@@ -57,7 +53,8 @@ data "aws_iam_policy_document" "s3_allow_ses_puts" {
 }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket        = var.ses_bucket
+  count  = var.enable_incoming_email ? 1 : 0
+  bucket = var.ses_bucket
 
   server_side_encryption_configuration {
     rule {
@@ -83,25 +80,26 @@ resource "aws_s3_bucket" "bucket" {
 
   # Never expire/delete anything from these buckets
   lifecycle_rule {
-    prefix = ""
+    prefix  = ""
     enabled = false
 
     # Move old reports to cheaper storage after they are not needed
     transition {
       # 5 years
-      days = 1825
+      days          = 1825
       storage_class = "GLACIER"
     }
     noncurrent_version_transition {
       # 5 years
-      days = 1825
+      days          = 1825
       storage_class = "GLACIER"
     }
   }
 }
 
 resource "aws_s3_bucket_public_access_block" "public_access_block" {
-  bucket = aws_s3_bucket.bucket.id
+  count  = var.enable_incoming_email ? 1 : 0
+  bucket = aws_s3_bucket.bucket[0].id
 
   # Block new public ACLs and uploading public objects
   block_public_acls = true
@@ -138,20 +136,20 @@ module "ses_domain" {
 
   enable_incoming_email = var.enable_incoming_email
 
-  domain_name     = var.route53_domain_name
-  route53_zone_id = data.aws_route53_zone.selected.zone_id
+  domain_name         = var.email_domain_name
+  route53_zone_id     = data.aws_route53_zone.selected.zone_id
   enable_verification = var.enable_verification
 
   from_addresses   = var.from_addresses
-  mail_from_domain = local.email_domain
+  mail_from_domain = var.mail_from_domain
 
-  dmarc_p = var.dmarc_p
-  dmarc_rua = var.dmarc_rua
-  receive_s3_bucket = aws_s3_bucket.bucket.id
+  dmarc_p           = var.dmarc_p
+  dmarc_rua         = var.dmarc_rua
+  receive_s3_bucket = var.enable_incoming_email ? aws_s3_bucket.bucket[0].id : ""
   receive_s3_prefix = var.receive_s3_prefix
   enable_spf_record = var.enable_spf_record
 
   extra_ses_records = var.extra_ses_records
 
-  ses_rule_set = aws_ses_receipt_rule_set.main.rule_set_name
+  ses_rule_set = var.enable_incoming_email ? aws_ses_receipt_rule_set.main[0].rule_set_name : ""
 }
