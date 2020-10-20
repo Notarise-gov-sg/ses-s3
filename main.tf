@@ -11,13 +11,13 @@ provider "aws" {
 #
 
 resource "aws_ses_receipt_rule_set" "main" {
-  count  = var.enable_incoming_email ? 1 : 0
+  count         = var.enable_incoming_email ? 1 : 0
   provider      = aws.ses_region
   rule_set_name = var.rule_set_name
 }
 
 resource "aws_ses_active_receipt_rule_set" "main" {
-  count  = var.enable_incoming_email ? 1 : 0
+  count         = var.enable_incoming_email ? 1 : 0
   provider      = aws.ses_region
   rule_set_name = aws_ses_receipt_rule_set.main[0].rule_set_name
 }
