@@ -50,6 +50,32 @@ data "aws_iam_policy_document" "s3_allow_ses_puts" {
       values   = [data.aws_caller_identity.current.account_id]
     }
   }
+
+  statement {
+    sid = "https-only"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    effect = "Deny"
+
+    actions = [
+      "s3:*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.ses_bucket}",
+      "arn:aws:s3:::${var.ses_bucket}/*",
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = [false]
+    }
+  }
 }
 
 resource "aws_s3_bucket" "bucket" {
