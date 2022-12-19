@@ -158,7 +158,7 @@ module "ses_domain" {
     aws = aws.ses_region
   }
   source  = "trussworks/ses-domain/aws"
-  version = "3.0.0"
+  version = "3.2.3"
 
   enable_incoming_email = var.enable_incoming_email
 
